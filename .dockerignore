@@ -1,0 +1,12 @@
+.git
+.gitignore
+*.exe
+*.dll
+*.so
+*.dylib
+bin/
+obj/
+.tmp/
+*.log
+Dockerfile
+AGENTS.md
