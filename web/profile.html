@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Профиль</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css" />
+</head>
+<body>
+  <div class="pure-g" style="padding:24px">
+    <div class="pure-u-1 pure-u-md-1-2">
+      <h2>Профиль</h2>
+      <button class="pure-button" id="load">Загрузить</button>
+      <form class="pure-form pure-form-stacked" id="profile-form" style="margin-top:16px">
+        <label>Имя</label>
+        <input type="text" name="name" />
+        <label>Телефон</label>
+        <input type="text" name="phone" />
+        <label>Город</label>
+        <input type="text" name="city" />
+        <button class="pure-button pure-button-primary" type="submit">Сохранить</button>
+      </form>
+      <pre id="out" style="margin-top:12px"></pre>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('profile-form');
+    const out = document.getElementById('out');
+    const loadBtn = document.getElementById('load');
+
+    function tokenHeader() {
+      const token = localStorage.getItem('token');
+      return { 'Authorization': 'Bearer ' + token };
+    }
+
+    loadBtn.addEventListener('click', async () => {
+      const res = await fetch('/api/v1/me', { headers: tokenHeader() });
+      const data = await res.json();
+      form.name.value = data.name || '';
+      form.phone.value = data.phone || '';
+      form.city.value = data.city || '';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch('/api/v1/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...tokenHeader() },
+        body: JSON.stringify(data)
+      });
+      out.textContent = await res.text();
+    });
+  </script>
+</body>
+</html>

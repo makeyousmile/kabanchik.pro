@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Услуги</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css" />
+</head>
+<body>
+  <div class="pure-g" style="padding:24px">
+    <div class="pure-u-1">
+      <h2>Услуги</h2>
+      <form class="pure-form" id="filter-form">
+        <input type="text" name="q" placeholder="Поиск" />
+        <input type="text" name="city" placeholder="Город" />
+        <input type="text" name="category" placeholder="Категория" />
+        <button class="pure-button" type="submit">Искать</button>
+      </form>
+
+      <h3 style="margin-top:24px">Создать услугу (исполнитель)</h3>
+      <form class="pure-form pure-form-stacked" id="create-form">
+        <label>Название</label>
+        <input type="text" name="title" required />
+        <label>Описание</label>
+        <textarea name="description"></textarea>
+        <label>Категория</label>
+        <input type="text" name="category" />
+        <label>Город</label>
+        <input type="text" name="city" />
+        <label>Цена</label>
+        <input type="number" name="price" />
+        <button class="pure-button pure-button-primary" type="submit">Создать</button>
+      </form>
+      <pre id="create-out" style="margin-top:12px"></pre>
+
+      <table class="pure-table pure-table-horizontal" style="margin-top:24px; width:100%">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Город</th>
+            <th>Цена</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const rows = document.getElementById('rows');
+    const form = document.getElementById('filter-form');
+    const createForm = document.getElementById('create-form');
+    const createOut = document.getElementById('create-out');
+
+    async function loadServices(params = '') {
+      const res = await fetch('/api/v1/services' + params);
+      const data = await res.json();
+      rows.innerHTML = data.map(item => `
+        <tr>
+          <td>${item.title}</td>
+          <td>${item.category || ''}</td>
+          <td>${item.city || ''}</td>
+          <td>${item.price || 0}</td>
+          <td>
+            <button class="pure-button" data-id="${item.id}" data-title="${item.title}">Заказать</button>
+          </td>
+        </tr>
+      `).join('');
+
+      rows.querySelectorAll('button[data-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Сначала выполните вход.');
+            return;
+          }
+          const serviceId = btn.getAttribute('data-id');
+          const details = prompt('Детали заказа для услуги: ' + btn.getAttribute('data-title')) || '';
+          const res = await fetch('/api/v1/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ service_id: serviceId, details })
+          });
+          alert(await res.text());
+        });
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const params = new URLSearchParams(new FormData(form));
+      loadServices('?' + params.toString());
+    });
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      const data = Object.fromEntries(new FormData(createForm));
+      data.price = Number(data.price || 0);
+      const res = await fetch('/api/v1/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(data)
+      });
+      createOut.textContent = await res.text();
+      await loadServices();
+    });
+
+    loadServices();
+  </script>
+</body>
+</html>

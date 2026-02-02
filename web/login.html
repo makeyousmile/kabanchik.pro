@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вход</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css" />
+</head>
+<body>
+  <div class="pure-g" style="padding:24px">
+    <div class="pure-u-1 pure-u-md-1-2">
+      <h2>Вход</h2>
+      <form class="pure-form pure-form-stacked" id="login-form">
+        <label>Email</label>
+        <input type="email" name="email" required />
+        <label>Пароль</label>
+        <input type="password" name="password" required />
+        <button class="pure-button pure-button-primary" type="submit">Войти</button>
+      </form>
+      <pre id="out" style="margin-top:16px"></pre>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const out = document.getElementById('out');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const text = await res.text();
+      out.textContent = text;
+      try {
+        const json = JSON.parse(text);
+        if (json.token) {
+          localStorage.setItem('token', json.token);
+        }
+      } catch (_) {}
+    });
+  </script>
+</body>
+</html>

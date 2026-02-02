@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Заказы</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css" />
+</head>
+<body>
+  <div class="pure-g" style="padding:24px">
+    <div class="pure-u-1">
+      <h2>Заказы</h2>
+      <p>Требуется вход. Токен берется из localStorage.</p>
+
+      <h3>Создать заказ (клиент)</h3>
+      <form class="pure-form pure-form-stacked" id="create-form">
+        <label>ID услуги</label>
+        <input type="text" name="service_id" required />
+        <label>Детали</label>
+        <textarea name="details"></textarea>
+        <button class="pure-button pure-button-primary" type="submit">Создать</button>
+      </form>
+      <pre id="create-out" style="margin-top:12px"></pre>
+
+      <h3 style="margin-top:24px">Сменить статус</h3>
+      <form class="pure-form" id="status-form">
+        <input type="text" name="order_id" placeholder="Order ID" required />
+        <select name="status">
+          <option value="accepted">accepted</option>
+          <option value="done">done</option>
+          <option value="canceled">canceled</option>
+        </select>
+        <button class="pure-button" type="submit">Обновить</button>
+      </form>
+      <pre id="status-out" style="margin-top:12px"></pre>
+
+      <h3 style="margin-top:24px">Сообщение по заказу</h3>
+      <form class="pure-form" id="message-form">
+        <input type="text" name="order_id" placeholder="Order ID" required />
+        <input type="text" name="text" placeholder="Текст" required />
+        <button class="pure-button" type="submit">Отправить</button>
+      </form>
+      <pre id="message-out" style="margin-top:12px"></pre>
+
+      <h3 style="margin-top:24px">Загрузка заказов</h3>
+      <button class="pure-button" id="load">Загрузить</button>
+      <table class="pure-table pure-table-horizontal" style="margin-top:16px; width:100%">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Статус</th>
+            <th>Создан</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const rows = document.getElementById('rows');
+    const btn = document.getElementById('load');
+    const createForm = document.getElementById('create-form');
+    const createOut = document.getElementById('create-out');
+    const statusForm = document.getElementById('status-form');
+    const statusOut = document.getElementById('status-out');
+    const messageForm = document.getElementById('message-form');
+    const messageOut = document.getElementById('message-out');
+
+    function tokenHeader() {
+      const token = localStorage.getItem('token');
+      return { 'Authorization': 'Bearer ' + token };
+    }
+
+    async function loadOrders() {
+      const res = await fetch('/api/v1/orders', { headers: tokenHeader() });
+      const data = await res.json();
+      rows.innerHTML = data.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.status}</td>
+          <td>${item.created_at || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(createForm));
+      const res = await fetch('/api/v1/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...tokenHeader() },
+        body: JSON.stringify(data)
+      });
+      createOut.textContent = await res.text();
+      await loadOrders();
+    });
+
+    statusForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(statusForm));
+      const res = await fetch(`/api/v1/orders/${data.order_id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...tokenHeader() },
+        body: JSON.stringify({ status: data.status })
+      });
+      statusOut.textContent = await res.text();
+      await loadOrders();
+    });
+
+    messageForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(messageForm));
+      const res = await fetch(`/api/v1/orders/${data.order_id}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...tokenHeader() },
+        body: JSON.stringify({ text: data.text })
+      });
+      messageOut.textContent = await res.text();
+    });
+
+    btn.addEventListener('click', loadOrders);
+  </script>
+</body>
+</html>

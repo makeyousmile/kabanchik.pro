@@ -7,6 +7,8 @@ services:
       PORT: "8080"
       MONGO_URI: "mongodb://mongo:27017"
       DB_NAME: "kabanchik"
+      JWT_SECRET: "dev-secret-change"
+      JWT_TTL: "24h"
     depends_on:
       - mongo
   mongo:

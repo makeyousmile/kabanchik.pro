@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Регистрация</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css" />
+</head>
+<body>
+  <div class="pure-g" style="padding:24px">
+    <div class="pure-u-1 pure-u-md-1-2">
+      <h2>Регистрация</h2>
+      <form class="pure-form pure-form-stacked" id="register-form">
+        <label>Email</label>
+        <input type="email" name="email" required />
+        <label>Пароль</label>
+        <input type="password" name="password" required />
+        <label>Роль</label>
+        <select name="role">
+          <option value="client">Клиент</option>
+          <option value="provider">Исполнитель</option>
+        </select>
+        <button class="pure-button pure-button-primary" type="submit">Зарегистрироваться</button>
+      </form>
+      <pre id="out" style="margin-top:16px"></pre>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const out = document.getElementById('out');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch('/api/v1/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      out.textContent = await res.text();
+    });
+  </script>
+</body>
+</html>

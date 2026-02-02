@@ -11,18 +11,24 @@ import (
 
 	"kabanchik.pro/internal/db"
 	"kabanchik.pro/internal/handlers"
+	"kabanchik.pro/internal/repo"
+	"kabanchik.pro/internal/service"
 )
 
 const (
-	defaultPort    = "8080"
-	defaultMongoURI = "mongodb://localhost:27017"
-	defaultDBName  = "kabanchik"
+	defaultPort      = "8080"
+	defaultMongoURI  = "mongodb://localhost:27017"
+	defaultDBName    = "kabanchik"
+	defaultJWTSecret = "dev-secret-change"
+	defaultJWTTTL    = "24h"
 )
 
 func main() {
 	port := getEnv("PORT", defaultPort)
 	mongoURI := getEnv("MONGO_URI", defaultMongoURI)
-	_ = getEnv("DB_NAME", defaultDBName)
+	dbName := getEnv("DB_NAME", defaultDBName)
+	jwtSecret := getEnv("JWT_SECRET", defaultJWTSecret)
+	jwtTTL := getEnv("JWT_TTL", defaultJWTTTL)
 
 	client, err := db.Connect(context.Background(), mongoURI)
 	if err != nil {
@@ -34,9 +40,22 @@ func main() {
 		_ = client.Disconnect(ctx)
 	}()
 
+	database := client.Database(dbName)
+	if err := db.EnsureIndexes(context.Background(), database); err != nil {
+		log.Fatalf("mongo indexes failed: %v", err)
+	}
+
+	store := repo.NewMongoStore(database)
+	svc := service.New(store)
+	ttl, err := time.ParseDuration(jwtTTL)
+	if err != nil {
+		log.Fatalf("invalid JWT_TTL: %v", err)
+	}
+	api := handlers.NewAPI(svc, []byte(jwtSecret), ttl)
+
 	mux := http.NewServeMux()
-	handlers.Register(mux)
-	mux.Handle("/", http.FileServer(http.Dir("web")))
+	api.Register(mux)
+	mux.Handle("/", http.FileServer(http.Dir(".")))
 
 	srv := &http.Server{
 		Addr:         ":" + port,
