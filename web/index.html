@@ -1,26 +1,171 @@
 <!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Онлайн сервис заказа услуг</title>
-  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css" />
-</head>
-<body>
-  <div class="pure-g" style="padding:24px">
-    <div class="pure-u-1">
-      <h1>Онлайн сервис заказа услуг</h1>
-      <p>Быстрые ссылки для прототипа:</p>
-      <p>
-        <a class="pure-button pure-button-primary" href="/api/v1/health">Проверить API</a>
-        <a class="pure-button" href="/register.html">Регистрация</a>
-        <a class="pure-button" href="/login.html">Вход</a>
-        <a class="pure-button" href="/profile.html">Профиль</a>
-        <a class="pure-button" href="/services.html">Услуги</a>
-        <a class="pure-button" href="/orders.html">Заказы</a>
-        <a class="pure-button" href="/docs.html">API Docs</a>
-      </p>
-    </div>
-  </div>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kabanchik.pro — Онлайн сервис заказа услуг</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/purecss@3.0.0/build/pure-min.css"
+        />
+        <style>
+            :root {
+                --accent: #1b5e20;
+                --accent-2: #2e7d32;
+                --bg: #f6f8f9;
+                --card: #ffffff;
+                --text: #1a1a1a;
+                --muted: #5c6b73;
+            }
+            body {
+                background: var(--bg);
+                color: var(--text);
+            }
+            .wrap {
+                max-width: 1080px;
+                margin: 0 auto;
+                padding: 24px;
+            }
+            .topbar {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .logo img {
+                height: 48px;
+                width: auto;
+                display: block;
+            }
+            .grow {
+                flex: 1 1 auto;
+            }
+            .search {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .section {
+                margin: 32px 0;
+            }
+            .section h2 {
+                margin-bottom: 12px;
+            }
+            .card {
+                background: var(--card);
+                padding: 16px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            }
+            .cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 16px;
+                justify-items: center;
+            }
+            .cards .card {
+                max-width: 320px;
+                width: 100%;
+                text-align: center;
+            }
+            .catalog {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 12px;
+            }
+            footer {
+                margin-top: 40px;
+                padding: 16px 0;
+                color: var(--muted);
+                border-top: 1px solid #e3e8ea;
+            }
+            .btn-primary {
+                background: var(--accent);
+                color: #fff;
+            }
+            .btn-primary:hover {
+                background: var(--accent-2);
+            }
+            @media (max-width: 720px) {
+                .search {
+                    width: 100%;
+                }
+                .search input {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <!-- 1. Top bar -->
+            <div class="topbar">
+                <a class="logo" href="/">
+                    <img src="/web/images/logo.png" alt="Kabanchik.pro" />
+                </a>
+                <a class="pure-button btn-primary" href="/orders.html"
+                    >Создать заказ</a
+                >
+                <div class="grow"></div>
+                <form
+                    class="pure-form search"
+                    action="/orders.html"
+                    method="get"
+                >
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Поиск заказа по номеру"
+                    />
+                    <button class="pure-button" type="submit">
+                        Найти заказ
+                    </button>
+                </form>
+                <a class="pure-button" href="/login.html">Войти</a>
+                <a class="pure-button" href="/register.html"
+                    >Зарегистрироваться</a
+                >
+            </div>
+
+            <!-- 2. Catalog -->
+            <div class="section">
+                <h2>Каталог услуг</h2>
+                <div class="catalog">
+                    <div class="card">Дом и ремонт</div>
+                    <div class="card">Клининг</div>
+                    <div class="card">Доставка и перевозки</div>
+                    <div class="card">Дизайн и IT</div>
+                    <div class="card">Репетиторы</div>
+                    <div class="card">Красота и здоровье</div>
+                </div>
+            </div>
+
+            <!-- 3. How it works -->
+            <div class="section">
+                <h2>Как работает Kabanchik.pro</h2>
+                <div class="cards">
+                    <div class="card">
+                        <h3>Создайте заказ</h3>
+                        <p>Подробно опишите что и когда нужно сделать</p>
+                    </div>
+                    <div class="card">
+                        <h3>Специалист получит задание</h3>
+                        <p>И свяжется с вами для обсуждения деталей</p>
+                    </div>
+                    <div class="card">
+                        <h3>Закройте заказ</h3>
+                        <p>Оставьте отзыв за проделанную работу</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Footer -->
+            <footer>© Kabanchik.pro — Онлайн сервис заказа услуг</footer>
+        </div>
+    </body>
 </html>
