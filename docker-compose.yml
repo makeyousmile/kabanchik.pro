@@ -10,7 +10,7 @@ services:
       - .env
     environment:
       PORT: "${PORT}"
-      MONGO_URI: "mongodb://${MONGO_APP_USERNAME}:${MONGO_APP_PASSWORD}@mongo:${MONGO_PORT}/${DB_NAME}?authSource=${DB_NAME}"
+      MONGO_URI: "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:${MONGO_PORT}/${DB_NAME}?authSource=admin"
       DB_NAME: "${DB_NAME}"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_TTL: "${JWT_TTL}"
@@ -28,4 +28,3 @@ services:
       MONGO_INITDB_DATABASE: "${DB_NAME}"
     volumes:
       - ./data/mongo:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
