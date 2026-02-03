@@ -14,7 +14,9 @@ RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=build /bin/server /app/server
 COPY web /app/web
+COPY openapi.yaml /app/openapi.yaml
 
-ENV PORT=8080
-EXPOSE 8080
+ARG PORT=8080
+ENV PORT=${PORT}
+EXPOSE ${PORT}
 CMD ["/app/server"]

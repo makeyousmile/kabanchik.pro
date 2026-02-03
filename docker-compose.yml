@@ -1,19 +1,29 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        PORT: ${PORT}
     ports:
-      - "8080:8080"
+      - "${PORT}:${PORT}"
+    env_file:
+      - .env
     environment:
-      PORT: "8080"
-      MONGO_URI: "mongodb://mongo:27017"
-      DB_NAME: "kabanchik"
-      JWT_SECRET: "dev-secret-change"
-      JWT_TTL: "24h"
+      PORT: "${PORT}"
+      MONGO_URI: "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:${MONGO_PORT}" 
+      DB_NAME: "${DB_NAME}"
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_TTL: "${JWT_TTL}"
     depends_on:
       - mongo
   mongo:
     image: mongo:7
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT}:27017"
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
     volumes:
       - ./data/mongo:/data/db
