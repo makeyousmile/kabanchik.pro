@@ -55,7 +55,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	api.Register(mux)
-	mux.Handle("/", http.FileServer(http.Dir(".")))
+	mux.Handle("/", http.FileServer(http.Dir("web")))
+	mux.HandleFunc("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "openapi.yaml")
+	})
 
 	srv := &http.Server{
 		Addr:         ":" + port,
